@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trendy Chatbot</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="chat-container">
+        <header class="chat-header">
+            <h1><i class="fas fa-robot"></i> Trendy Chatbot</h1>
+        </header>
+        <main class="chat-main">
+            <div id="chat-messages" class="chat-messages"></div>
+        </main>
+        <footer class="chat-footer">
+            <input
+                type="text"
+                id="user-input"
+                placeholder="Type your message here..."
+                class="input-box"
+            />
+            <button id="send-btn" class="send-btn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </footer>
+    </div>
+    <script>
+        document.getElementById('send-btn').addEventListener('click', async () => {
+            const userInput = document.getElementById('user-input');
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            const chatMessages = document.getElementById('chat-messages');
+
+            // Append user message to the chat
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'message user-message';
+            userMessageDiv.textContent = message;
+            chatMessages.appendChild(userMessageDiv);
+
+            // Clear input
+            userInput.value = '';
+
+            // Send message to the server
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message }),
+                });
+                const data = await response.json();
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'message bot-message';
+                botMessageDiv.textContent = data.message || 'Error: Unable to get response.';
+                chatMessages.appendChild(botMessageDiv);
+
+                // Scroll to the latest message
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            } catch (error) {
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>
